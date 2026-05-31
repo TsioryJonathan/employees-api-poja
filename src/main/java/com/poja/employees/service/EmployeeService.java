@@ -6,6 +6,7 @@ import com.poja.employees.model.Employee;
 import com.poja.employees.model.dto.EmployeeResponse;
 import com.poja.employees.model.dto.IndividualResponseWrapper;
 import com.poja.employees.model.dto.ResponseWrapper;
+import com.poja.employees.model.exception.CannotDeleteEmployeeException;
 import com.poja.employees.model.exception.DuplicateEmailException;
 import com.poja.employees.model.exception.NotFoundException;
 import com.poja.employees.repository.DepartmentRepository;
@@ -56,6 +57,12 @@ public class EmployeeService {
         return new IndividualResponseWrapper<>(response);
     }
     public IndividualResponseWrapper<EmployeeResponse> updateEmployee(long id, EmployeeRequest request) {
+        if (employeeRepository.existsByEmail(request.getEmail())) {
+            Employee existing = employeeRepository.findByEmail(request.getEmail()).orElseThrow(() -> new NotFoundException("Employee with id: " + id + " not found"));
+            if (existing.getId() != id) {
+                throw new DuplicateEmailException("Email already exists: " + request.getEmail());
+            }
+        }
         Employee existingEmployee = employeeRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Employee with id: " + id + " not found"));
         employeeMapper.updateEntity(request, existingEmployee);
@@ -73,11 +80,16 @@ public class EmployeeService {
         return new IndividualResponseWrapper<>(response);
     }
     public IndividualResponseWrapper<String> deleteEmployee(long id) {
-        /* check if exist */
-        if(!employeeRepository.existsById(id)){
-            throw new NotFoundException("Employee with id: " + id + " not found");
+        /* check if exists and check if has interns */
+        Employee employee = employeeRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Employee with id: " + id + " not found"));
+
+        if (employee.getInterns() != null && !employee.getInterns().isEmpty()) {
+            throw new CannotDeleteEmployeeException("Cannot delete employee with id " + id +
+                    " because they manage " + employee.getInterns().size() + " intern(s)");
         }
+
         employeeRepository.deleteById(id);
-        return new IndividualResponseWrapper<>("Employee with id " + id + "deleted successfully");
+        return new IndividualResponseWrapper<>("Employee with id " + id + " deleted successfully");
     }
 }
