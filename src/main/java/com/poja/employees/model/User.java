@@ -1,4 +1,4 @@
-package com.poja.employees.repository.model;
+package com.poja.employees.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
