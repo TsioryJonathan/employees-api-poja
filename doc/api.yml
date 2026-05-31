@@ -5,11 +5,11 @@ info:
   version: 1.0.0
 
 servers:
-  - url: /
+  - url: http://localhost:8080
     description: Local development
-  - url: https://heyftjgiei6kjlj5cfxwwkkz4a0zjjdm.lambda-url.eu-west-3.on.aws/api
+  - url: https://heyftjgiei6kjlj5cfxwwkkz4a0zjjdm.lambda-url.eu-west-3.on.aws
     description: Preprod
-  - url: https://t54gzakjvyqbhkugcche7edgce0ygmjd.lambda-url.eu-west-3.on.aws/api
+  - url: https://t54gzakjvyqbhkugcche7edgce0ygmjd.lambda-url.eu-west-3.on.aws
     description: Production
 
 paths:
