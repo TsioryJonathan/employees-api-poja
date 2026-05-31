@@ -44,9 +44,10 @@ out/
 
 src/main/resources/application.properties
 
-### Agent instructions ###
+### Agent instructions & docs ###
 AGENTS.md
 CLAUDE.md
 GEMINI.md
 .cursorrules
 .cursor/
+docs/
