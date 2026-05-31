@@ -34,4 +34,11 @@ public class GlobalExceptionHandler {
     map.put("error", e.getMessage());
     return ResponseEntity.status(HttpStatus.CONFLICT).body(map);
   }
+
+  @ExceptionHandler(Exception.class)
+  public ResponseEntity<Map<String, String>> handleException(Exception e) {
+    Map<String, String> map = new HashMap<>();
+    map.put("error", "Internal server error");
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(map);
+  }
 }

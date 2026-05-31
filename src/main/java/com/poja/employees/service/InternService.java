@@ -26,8 +26,11 @@ public class InternService {
   private final EmployeeRepository employeeRepository;
   private final InternMapper internMapper;
 
-  public ResponseWrapper<InternResponse> getAllInterns(Pageable pageable) {
-    Page<Intern> internPage = internRepository.findAll(pageable);
+  public ResponseWrapper<InternResponse> getAllInterns(Pageable pageable, Long managerId) {
+    Page<Intern> internPage =
+        (managerId != null)
+            ? internRepository.findByManagerId(managerId, pageable)
+            : internRepository.findAll(pageable);
     Page<InternResponse> responsePage = internPage.map(internMapper::toDTO);
     return new ResponseWrapper<>(responsePage.getContent(), internPage.getTotalElements());
   }

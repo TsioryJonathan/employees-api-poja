@@ -253,6 +253,12 @@ paths:
             type: string
             enum: [ASC, DESC]
             default: ASC
+        - name: managerId
+          in: query
+          schema:
+            type: integer
+            format: int64
+          description: Filter interns by manager ID
       responses:
         "200":
           description: Paginated list of interns

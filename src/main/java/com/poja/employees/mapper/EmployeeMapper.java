@@ -17,7 +17,9 @@ public class EmployeeMapper {
     employeeResponse.setName(employee.getName());
     employeeResponse.setEmail(employee.getEmail());
     employeeResponse.setSalary(employee.getSalary());
-    employeeResponse.setDepartment(employee.getDepartment().getName());
+    if (employee.getDepartment() != null) {
+      employeeResponse.setDepartment(employee.getDepartment().getName());
+    }
     employeeResponse.setIsActive(employee.getIsActive());
     employeeResponse.setInternIds(employee.getInterns().stream().map(Intern::getId).toList());
     return employeeResponse;

@@ -25,9 +25,10 @@ public class InternController {
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "10") int size,
       @RequestParam(required = false) String sort,
-      @RequestParam(required = false) String order) {
+      @RequestParam(required = false) String order,
+      @RequestParam(required = false) Long managerId) {
     Pageable pageable = buildPageable(page, size, sort, order);
-    ResponseWrapper<InternResponse> response = internService.getAllInterns(pageable);
+    ResponseWrapper<InternResponse> response = internService.getAllInterns(pageable, managerId);
     return ResponseEntity.ok(response);
   }
 

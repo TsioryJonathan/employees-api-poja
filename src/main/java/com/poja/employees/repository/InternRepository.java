@@ -12,6 +12,8 @@ public interface InternRepository extends JpaRepository<Intern, Long> {
   @Override
   Page<Intern> findAll(Pageable pageable);
 
+  Page<Intern> findByManagerId(Long managerId, Pageable pageable);
+
   boolean existsByEmail(String email);
 
   Optional<Intern> findByEmail(String email);
