@@ -1,12 +1,14 @@
     package com.poja.employees.endpoint.rest.controller.administration;
 
     import com.poja.employees.model.dto.EmployeeResponse;
+    import com.poja.employees.model.dto.IndividualResponseWrapper;
     import com.poja.employees.model.dto.ResponseWrapper;
     import com.poja.employees.service.EmployeeService;
     import lombok.AllArgsConstructor;
     import org.springframework.data.domain.PageRequest;
     import org.springframework.data.domain.Pageable;
     import org.springframework.data.domain.Sort;
+    import org.springframework.http.HttpStatus;
     import org.springframework.http.ResponseEntity;
     import org.springframework.web.bind.annotation.*;
 
@@ -28,6 +30,14 @@
             ResponseWrapper<EmployeeResponse> response = employeeService.getAllEmployees(pageable);
             return ResponseEntity.ok(response);
         }
+
+        @GetMapping("/{id}")
+        public ResponseEntity<IndividualResponseWrapper<EmployeeResponse>> getEmployeeById(@PathVariable long id) {
+            return ResponseEntity.status(HttpStatus.OK).body(employeeService.getEmployeeById(id));
+        }
+
+
+        /* Utils */
         private Pageable buildPageable(int page, int size, String sort, String order) {
             if (sort != null && !sort.isEmpty()) {
                 Sort.Direction direction = order != null && order.equalsIgnoreCase("DESC")
