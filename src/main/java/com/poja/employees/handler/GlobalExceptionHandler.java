@@ -1,4 +1,5 @@
 package com.poja.employees.handler;
+import com.poja.employees.model.exception.DuplicateEmailException;
 import com.poja.employees.model.exception.NotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,5 +16,11 @@ public class GlobalExceptionHandler {
         Map<String, String> map = new HashMap<>();
         map.put("error", e.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(map);
+    }
+    @ExceptionHandler(DuplicateEmailException.class)
+    public ResponseEntity<Map<String, String>> handleDuplicateEmailException(NotFoundException e) {
+        Map<String, String> map = new HashMap<>();
+        map.put("error", e.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(map);
     }
 }
