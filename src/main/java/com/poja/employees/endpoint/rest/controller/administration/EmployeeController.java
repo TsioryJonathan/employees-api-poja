@@ -42,6 +42,12 @@
         public ResponseEntity<IndividualResponseWrapper<EmployeeResponse>> createEmployee(@RequestBody EmployeeRequest employeeRequest) {
             return ResponseEntity.status(HttpStatus.CREATED).body(employeeService.createEmployee(employeeRequest));
         }
+
+        /* Edit an employee */
+        @PutMapping("/{id}")
+        public ResponseEntity<IndividualResponseWrapper<EmployeeResponse>> updateEmployee(@PathVariable long id, @RequestBody EmployeeRequest employeeRequest) {
+            return  ResponseEntity.status(HttpStatus.OK).body(employeeService.updateEmployee(id, employeeRequest));
+        }
         /* Utils */
         private Pageable buildPageable(int page, int size, String sort, String order) {
             if (sort != null && !sort.isEmpty()) {

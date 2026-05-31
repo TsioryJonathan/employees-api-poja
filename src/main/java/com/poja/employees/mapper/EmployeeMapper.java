@@ -34,4 +34,12 @@ public class EmployeeMapper {
 
         return employee;
     }
+    public void updateEntity(EmployeeRequest request, Employee existingEmployee) {
+        if (request == null) return;
+
+        existingEmployee.setName(request.getName());
+        existingEmployee.setEmail(request.getEmail());
+        existingEmployee.setSalary(request.getSalary());
+        existingEmployee.setIsActive(request.getIsActive());
+    }
 }
