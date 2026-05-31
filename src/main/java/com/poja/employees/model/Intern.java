@@ -12,14 +12,14 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Intern extends User{
+public class Intern extends User {
 
-    @Column(nullable = false)
-    private Boolean isRemunerated;
+  @Column(nullable = false)
+  private Boolean isRemunerated;
 
-    private Double remuneration;
+  private Double remuneration;
 
-    @ManyToOne
-    @JoinColumn(name = "id_manager")
-    private Employee manager;
+  @ManyToOne
+  @JoinColumn(name = "id_manager")
+  private Employee manager;
 }
