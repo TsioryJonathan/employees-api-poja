@@ -1,0 +1,570 @@
+openapi: 3.0.3
+info:
+  title: Employees API
+  description: Employee and Intern management API. Generated from Poja starter template. Deployed on AWS Lambda.
+  version: 1.0.0
+
+servers:
+  - url: /
+    description: Local or deployed
+
+paths:
+  /ping:
+    get:
+      summary: Health check
+      operationId: ping
+      tags:
+        - Health
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: pong
+
+  /health/db:
+    get:
+      summary: Database health check
+      operationId: healthDb
+      tags:
+        - Health
+      responses:
+        "200":
+          description: OK — dummy table is not empty
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: OK
+        "500":
+          description: KO — dummy table is empty
+
+  /health/email:
+    get:
+      summary: Email health check
+      operationId: healthEmail
+      tags:
+        - Health
+      parameters:
+        - name: to
+          in: query
+          required: true
+          schema:
+            type: string
+            format: email
+      responses:
+        "200":
+          description: Test emails sent successfully
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: OK
+
+  /api/employees:
+    get:
+      summary: List all employees with pagination and sorting
+      operationId: getAllEmployees
+      tags:
+        - Employees
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 10
+        - name: sort
+          in: query
+          schema:
+            type: string
+          description: Field to sort by (e.g. name, email, salary)
+        - name: order
+          in: query
+          schema:
+            type: string
+            enum: [ASC, DESC]
+            default: ASC
+      responses:
+        "200":
+          description: Paginated list of employees
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmployeeListResponse"
+
+    post:
+      summary: Create a new employee
+      operationId: createEmployee
+      tags:
+        - Employees
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EmployeeRequest"
+      responses:
+        "201":
+          description: Employee created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmployeeSingleResponse"
+        "409":
+          description: Email already exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/employees/{id}:
+    get:
+      summary: Get employee by ID
+      operationId: getEmployeeById
+      tags:
+        - Employees
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Employee found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmployeeSingleResponse"
+        "404":
+          description: Employee not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    put:
+      summary: Update an existing employee
+      operationId: updateEmployee
+      tags:
+        - Employees
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EmployeeRequest"
+      responses:
+        "200":
+          description: Employee updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmployeeSingleResponse"
+        "404":
+          description: Employee not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: Email already exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    delete:
+      summary: Delete an employee
+      operationId: deleteEmployee
+      tags:
+        - Employees
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Employee deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeleteResponse"
+        "404":
+          description: Employee not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: Employee manages interns and cannot be deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/interns:
+    get:
+      summary: List all interns with pagination and sorting
+      operationId: getAllInterns
+      tags:
+        - Interns
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 10
+        - name: sort
+          in: query
+          schema:
+            type: string
+          description: Field to sort by (e.g. name, email)
+        - name: order
+          in: query
+          schema:
+            type: string
+            enum: [ASC, DESC]
+            default: ASC
+      responses:
+        "200":
+          description: Paginated list of interns
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternListResponse"
+
+    post:
+      summary: Create a new intern
+      operationId: createIntern
+      tags:
+        - Interns
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InternRequest"
+      responses:
+        "201":
+          description: Intern created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternSingleResponse"
+        "409":
+          description: Email already exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/interns/{id}:
+    get:
+      summary: Get intern by ID
+      operationId: getInternById
+      tags:
+        - Interns
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Intern found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternSingleResponse"
+        "404":
+          description: Intern not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    put:
+      summary: Update an existing intern
+      operationId: updateIntern
+      tags:
+        - Interns
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InternRequest"
+      responses:
+        "200":
+          description: Intern updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternSingleResponse"
+        "404":
+          description: Intern not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: Email already exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    delete:
+      summary: Delete an intern
+      operationId: deleteIntern
+      tags:
+        - Interns
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Intern deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeleteResponse"
+        "404":
+          description: Intern not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+components:
+  schemas:
+    ResponseWrapper:
+      type: object
+      description: Generic wrapper for paginated list responses (React Admin format)
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+        total:
+          type: integer
+          format: int64
+      required:
+        - data
+        - total
+
+    IndividualResponseWrapper:
+      type: object
+      description: Generic wrapper for single item responses
+      properties:
+        data:
+          type: object
+      required:
+        - data
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    DeleteResponse:
+      type: object
+      properties:
+        data:
+          type: string
+      required:
+        - data
+
+    EmployeeRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        salary:
+          type: number
+          format: double
+        isActive:
+          type: boolean
+        departmentId:
+          type: integer
+          format: int64
+          nullable: true
+      required:
+        - name
+        - email
+        - salary
+        - isActive
+
+    EmployeeResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        salary:
+          type: number
+          format: double
+        isActive:
+          type: boolean
+        department:
+          type: string
+          nullable: true
+          description: Department name
+        internIds:
+          type: array
+          items:
+            type: integer
+            format: int64
+
+    EmployeeListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/EmployeeResponse"
+        total:
+          type: integer
+          format: int64
+      required:
+        - data
+        - total
+
+    EmployeeSingleResponse:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/EmployeeResponse"
+      required:
+        - data
+
+    InternRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        isRemunerated:
+          type: boolean
+        remuneration:
+          type: number
+          format: double
+          nullable: true
+        managerId:
+          type: integer
+          format: int64
+          nullable: true
+        departmentId:
+          type: integer
+          format: int64
+          nullable: true
+      required:
+        - name
+        - email
+        - isRemunerated
+
+    InternResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        isRemunerated:
+          type: boolean
+        remuneration:
+          type: number
+          format: double
+          nullable: true
+        department:
+          type: string
+          nullable: true
+          description: Department name
+        managerName:
+          type: string
+          nullable: true
+          description: Manager (employee) name
+        departmentId:
+          type: integer
+          format: int64
+          nullable: true
+        managerId:
+          type: integer
+          format: int64
+          nullable: true
+
+    InternListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/InternResponse"
+        total:
+          type: integer
+          format: int64
+      required:
+        - data
+        - total
+
+    InternSingleResponse:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/InternResponse"
+      required:
+        - data

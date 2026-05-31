@@ -1,0 +1,24 @@
+package com.poja.employees.model;
+
+import jakarta.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
+import lombok.*;
+
+@Entity
+@Table(name = "employee")
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+public class Employee extends User {
+
+  @Column(nullable = false)
+  private Double salary;
+
+  @Column(nullable = false)
+  private Boolean isActive;
+
+  @OneToMany(mappedBy = "manager")
+  private List<Intern> interns = new ArrayList<>();
+}
