@@ -12,8 +12,8 @@ import java.util.List;
 @NoArgsConstructor
 @Getter
 @Setter
-@Builder
 public class Employee extends User {
+
     @Column(nullable = false)
     private Double salary;
 
