@@ -10,6 +10,7 @@ import com.poja.employees.model.exception.NotFoundException;
 import com.poja.employees.repository.DepartmentRepository;
 import com.poja.employees.repository.EmployeeRepository;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;

@@ -2,9 +2,12 @@ package com.poja.employees.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 @MappedSuperclass
-@Data
+@Getter
+@Setter
 public abstract class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

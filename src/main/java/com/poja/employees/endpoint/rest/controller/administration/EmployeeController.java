@@ -38,7 +38,8 @@
         }
 
         /* Creation of an employee */
-        public ResponseEntity<IndividualResponseWrapper<EmployeeResponse>> createEmployee(EmployeeRequest employeeRequest) {
+        @PostMapping
+        public ResponseEntity<IndividualResponseWrapper<EmployeeResponse>> createEmployee(@RequestBody EmployeeRequest employeeRequest) {
             return ResponseEntity.status(HttpStatus.CREATED).body(employeeService.createEmployee(employeeRequest));
         }
         /* Utils */
