@@ -1,12 +1,16 @@
 openapi: 3.0.3
 info:
   title: Employees API
-  description: Employee and Intern management API. Generated from Poja starter template. Deployed on AWS Lambda.
+  description: Employee and Intern management API.
   version: 1.0.0
 
 servers:
   - url: /
-    description: Local or deployed
+    description: Local development
+  - url: https://heyftjgiei6kjlj5cfxwwkkz4a0zjjdm.lambda-url.eu-west-3.on.aws/api
+    description: Preprod
+  - url: https://t54gzakjvyqbhkugcche7edgce0ygmjd.lambda-url.eu-west-3.on.aws/api
+    description: Production
 
 paths:
   /ping:
