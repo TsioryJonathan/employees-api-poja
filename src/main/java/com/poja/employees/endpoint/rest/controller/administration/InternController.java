@@ -47,8 +47,7 @@ public class InternController {
   @PutMapping("/{id}")
   public ResponseEntity<IndividualResponseWrapper<InternResponse>> updateIntern(
       @PathVariable long id, @RequestBody InternRequest internRequest) {
-    return ResponseEntity.status(HttpStatus.OK)
-        .body(internService.updateIntern(id, internRequest));
+    return ResponseEntity.status(HttpStatus.OK).body(internService.updateIntern(id, internRequest));
   }
 
   @DeleteMapping("/{id}")
