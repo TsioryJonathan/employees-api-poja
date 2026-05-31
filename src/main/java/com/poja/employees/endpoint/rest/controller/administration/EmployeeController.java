@@ -48,6 +48,12 @@
         public ResponseEntity<IndividualResponseWrapper<EmployeeResponse>> updateEmployee(@PathVariable long id, @RequestBody EmployeeRequest employeeRequest) {
             return  ResponseEntity.status(HttpStatus.OK).body(employeeService.updateEmployee(id, employeeRequest));
         }
+
+        /* */
+        @DeleteMapping("/{id}")
+        public ResponseEntity<IndividualResponseWrapper<String>> deleteEmployee(@PathVariable long id) {
+            return ResponseEntity.status(HttpStatus.OK).body(employeeService.deleteEmployee(id));
+        }
         /* Utils */
         private Pageable buildPageable(int page, int size, String sort, String order) {
             if (sort != null && !sort.isEmpty()) {

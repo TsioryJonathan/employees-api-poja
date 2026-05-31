@@ -6,6 +6,7 @@ import com.poja.employees.model.Employee;
 import com.poja.employees.model.dto.EmployeeResponse;
 import com.poja.employees.model.dto.IndividualResponseWrapper;
 import com.poja.employees.model.dto.ResponseWrapper;
+import com.poja.employees.model.exception.DuplicateEmailException;
 import com.poja.employees.model.exception.NotFoundException;
 import com.poja.employees.repository.DepartmentRepository;
 import com.poja.employees.repository.EmployeeRepository;
@@ -38,6 +39,10 @@ public class EmployeeService {
         return new IndividualResponseWrapper<>(dto);
     }
     public IndividualResponseWrapper<EmployeeResponse> createEmployee(EmployeeRequest request) {
+        /* check if email already exists */
+        if (employeeRepository.existsByEmail(request.getEmail())){
+            throw new DuplicateEmailException("Email already exists " + request.getEmail());
+        }
         Employee employee = employeeMapper.toEntity(request);
         if (request.getDepartmentId() != null) {
             var department = departmentRepository.findById(request.getDepartmentId())
@@ -66,5 +71,13 @@ public class EmployeeService {
         EmployeeResponse response = employeeMapper.toDTO(updatedEmployee);
 
         return new IndividualResponseWrapper<>(response);
+    }
+    public IndividualResponseWrapper<String> deleteEmployee(long id) {
+        /* check if exist */
+        if(!employeeRepository.existsById(id)){
+            throw new NotFoundException("Employee with id: " + id + " not found");
+        }
+        employeeRepository.deleteById(id);
+        return new IndividualResponseWrapper<>("Employee with id " + id + "deleted successfully");
     }
 }

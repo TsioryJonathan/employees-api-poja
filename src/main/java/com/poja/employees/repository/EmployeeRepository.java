@@ -11,4 +11,6 @@ import org.springframework.stereotype.Repository;
 public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     @Override
     Page<Employee> findAll(Pageable pageable);
+
+    boolean existsByEmail(String email);
 }
