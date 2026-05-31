@@ -41,3 +41,13 @@ out/
 
 ### Mac OS ###
 .DS_Store
+
+src/main/resources/application.properties
+
+### Agent instructions & docs ###
+AGENTS.md
+CLAUDE.md
+GEMINI.md
+.cursorrules
+.cursor/
+docs/
