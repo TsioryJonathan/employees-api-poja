@@ -10,7 +10,6 @@ import com.poja.employees.model.exception.NotFoundException;
 import com.poja.employees.repository.DepartmentRepository;
 import com.poja.employees.repository.EmployeeRepository;
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -38,7 +37,6 @@ public class EmployeeService {
         EmployeeResponse dto = employeeMapper.toDTO(employee);
         return new IndividualResponseWrapper<>(dto);
     }
-
     public IndividualResponseWrapper<EmployeeResponse> createEmployee(EmployeeRequest request) {
         Employee employee = employeeMapper.toEntity(request);
         if (request.getDepartmentId() != null) {
@@ -49,6 +47,23 @@ public class EmployeeService {
 
         Employee savedEmployee = employeeRepository.save(employee);
         EmployeeResponse response = employeeMapper.toDTO(savedEmployee);
+
+        return new IndividualResponseWrapper<>(response);
+    }
+    public IndividualResponseWrapper<EmployeeResponse> updateEmployee(long id, EmployeeRequest request) {
+        Employee existingEmployee = employeeRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Employee with id: " + id + " not found"));
+        employeeMapper.updateEntity(request, existingEmployee);
+        if (request.getDepartmentId() != null) {
+            var department = departmentRepository.findById(request.getDepartmentId())
+                    .orElseThrow(() -> new NotFoundException("Department not found with id: " + request.getDepartmentId()));
+            existingEmployee.setDepartment(department);
+        } else {
+            existingEmployee.setDepartment(null);
+        }
+
+        Employee updatedEmployee = employeeRepository.save(existingEmployee);
+        EmployeeResponse response = employeeMapper.toDTO(updatedEmployee);
 
         return new IndividualResponseWrapper<>(response);
     }
