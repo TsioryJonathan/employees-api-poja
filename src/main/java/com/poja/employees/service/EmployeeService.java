@@ -7,7 +7,6 @@ import com.poja.employees.model.dto.ResponseWrapper;
 import com.poja.employees.repository.EmployeeRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -17,8 +16,7 @@ public class EmployeeService {
     private final EmployeeRepository employeeRepository;
     private final EmployeeMapper employeeMapper;
 
-    public ResponseWrapper<EmployeeResponse> getAllEmployees(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+    public ResponseWrapper<EmployeeResponse> getAllEmployees(Pageable pageable) {
         Page<Employee> employeePage = employeeRepository.findAll(pageable);
 
         Page<EmployeeResponse> responsePage = employeePage.map(employeeMapper::toDTO);
