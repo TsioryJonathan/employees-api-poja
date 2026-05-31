@@ -78,8 +78,7 @@ public class InternService {
       Intern existing =
           internRepository
               .findByEmail(request.getEmail())
-              .orElseThrow(
-                  () -> new NotFoundException("Intern with id: " + id + " not found"));
+              .orElseThrow(() -> new NotFoundException("Intern with id: " + id + " not found"));
       if (existing.getId() != id) {
         throw new DuplicateEmailException("Email already exists: " + request.getEmail());
       }
