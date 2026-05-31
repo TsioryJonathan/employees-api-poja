@@ -8,9 +8,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class EmployeeRequest {
-    private String name;
-    private String email;
-    private Double salary;
-    private Boolean isActive;
-    private Long departmentId;
+  private String name;
+  private String email;
+  private Double salary;
+  private Boolean isActive;
+  private Long departmentId;
 }

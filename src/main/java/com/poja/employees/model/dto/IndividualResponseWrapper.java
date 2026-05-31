@@ -6,5 +6,5 @@ import lombok.Data;
 @AllArgsConstructor
 @Data
 public class IndividualResponseWrapper<T> {
-    private T data;
+  private T data;
 }
