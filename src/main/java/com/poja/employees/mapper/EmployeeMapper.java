@@ -1,5 +1,6 @@
 package com.poja.employees.mapper;
 
+import com.poja.employees.endpoint.rest.dto.EmployeeRequest;
 import com.poja.employees.model.Employee;
 import com.poja.employees.model.Intern;
 import com.poja.employees.model.dto.EmployeeResponse;
@@ -20,5 +21,17 @@ public class EmployeeMapper {
         employeeResponse.setIsActive(employee.getIsActive());
         employeeResponse.setInternIds(employee.getInterns().stream().map(Intern::getId).toList());
         return employeeResponse;
+    }
+
+    public Employee toEntity(EmployeeRequest request) {
+        if (request == null) return null;
+
+        Employee employee = new Employee();
+        employee.setName(request.getName());
+        employee.setEmail(request.getEmail());
+        employee.setSalary(request.getSalary());
+        employee.setIsActive(request.getIsActive());
+
+        return employee;
     }
 }

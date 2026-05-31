@@ -1,5 +1,6 @@
     package com.poja.employees.endpoint.rest.controller.administration;
 
+    import com.poja.employees.endpoint.rest.dto.EmployeeRequest;
     import com.poja.employees.model.dto.EmployeeResponse;
     import com.poja.employees.model.dto.IndividualResponseWrapper;
     import com.poja.employees.model.dto.ResponseWrapper;
@@ -36,7 +37,10 @@
             return ResponseEntity.status(HttpStatus.OK).body(employeeService.getEmployeeById(id));
         }
 
-
+        /* Creation of an employee */
+        public ResponseEntity<IndividualResponseWrapper<EmployeeResponse>> createEmployee(EmployeeRequest employeeRequest) {
+            return ResponseEntity.status(HttpStatus.CREATED).body(employeeService.createEmployee(employeeRequest));
+        }
         /* Utils */
         private Pageable buildPageable(int page, int size, String sort, String order) {
             if (sort != null && !sort.isEmpty()) {
