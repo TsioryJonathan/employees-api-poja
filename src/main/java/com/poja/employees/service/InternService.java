@@ -12,6 +12,7 @@ import com.poja.employees.model.exception.NotFoundException;
 import com.poja.employees.repository.DepartmentRepository;
 import com.poja.employees.repository.EmployeeRepository;
 import com.poja.employees.repository.InternRepository;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -43,6 +44,9 @@ public class InternService {
   }
 
   public IndividualResponseWrapper<InternResponse> createIntern(InternRequest request) {
+    if (request.getEmail() == null) {
+      request.setEmail("pending-" + UUID.randomUUID() + "@init.local");
+    }
     if (internRepository.existsByEmail(request.getEmail())) {
       throw new DuplicateEmailException("Email already exists " + request.getEmail());
     }
@@ -76,6 +80,9 @@ public class InternService {
   }
 
   public IndividualResponseWrapper<InternResponse> updateIntern(long id, InternRequest request) {
+    if (request.getEmail() == null) {
+      request.setEmail("pending-" + UUID.randomUUID() + "@init.local");
+    }
     if (internRepository.existsByEmail(request.getEmail())) {
       Intern existing =
           internRepository

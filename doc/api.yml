@@ -534,6 +534,7 @@ components:
         email:
           type: string
           format: email
+          nullable: true
         isRemunerated:
           type: boolean
         remuneration:
@@ -550,7 +551,6 @@ components:
           nullable: true
       required:
         - name
-        - email
         - isRemunerated
 
     InternResponse:
