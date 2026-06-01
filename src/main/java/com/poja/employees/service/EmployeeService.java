@@ -11,17 +11,8 @@ import com.poja.employees.model.exception.DuplicateEmailException;
 import com.poja.employees.model.exception.NotFoundException;
 import com.poja.employees.repository.DepartmentRepository;
 import com.poja.employees.repository.EmployeeRepository;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.TypedQuery;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -31,65 +22,13 @@ public class EmployeeService {
   private final EmployeeRepository employeeRepository;
   private final DepartmentRepository departmentRepository;
   private final EmployeeMapper employeeMapper;
-  private final EntityManager entityManager;
 
   public ResponseWrapper<EmployeeResponse> getAllEmployees(
       Pageable pageable, String q, String department, Boolean isActive) {
-    CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-
-    CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
-    Root<Employee> countRoot = countQuery.from(Employee.class);
-    List<Predicate> predicates = new ArrayList<>();
-    addPredicates(cb, countRoot, predicates, q, department, isActive);
-    countQuery.select(cb.count(countRoot));
-    if (!predicates.isEmpty()) {
-      countQuery.where(cb.and(predicates.toArray(new Predicate[0])));
-    }
-    long total = entityManager.createQuery(countQuery).getSingleResult();
-
-    CriteriaQuery<Employee> dataQuery = cb.createQuery(Employee.class);
-    Root<Employee> dataRoot = dataQuery.from(Employee.class);
-    predicates = new ArrayList<>();
-    addPredicates(cb, dataRoot, predicates, q, department, isActive);
-    if (!predicates.isEmpty()) {
-      dataQuery.where(cb.and(predicates.toArray(new Predicate[0])));
-    }
-    if (pageable.getSort().isSorted()) {
-      pageable
-          .getSort()
-          .forEach(
-              order -> {
-                var path = dataRoot.get(order.getProperty());
-                dataQuery.orderBy(order.isAscending() ? cb.asc(path) : cb.desc(path));
-              });
-    }
-
-    TypedQuery<Employee> query = entityManager.createQuery(dataQuery);
-    query.setFirstResult((int) pageable.getOffset());
-    query.setMaxResults(pageable.getPageSize());
-    List<Employee> employees = query.getResultList();
-
-    Page<Employee> employeePage = new PageImpl<>(employees, pageable, total);
+    Page<Employee> employeePage =
+        employeeRepository.searchEmployees(q, department, isActive, pageable);
     Page<EmployeeResponse> responsePage = employeePage.map(employeeMapper::toDTO);
     return new ResponseWrapper<>(responsePage.getContent(), employeePage.getTotalElements());
-  }
-
-  private void addPredicates(
-      CriteriaBuilder cb,
-      Root<Employee> root,
-      List<Predicate> predicates,
-      String q,
-      String department,
-      Boolean isActive) {
-    if (q != null && !q.isEmpty()) {
-      predicates.add(cb.like(cb.lower(root.get("name")), "%" + q.toLowerCase() + "%"));
-    }
-    if (department != null && !department.isEmpty()) {
-      predicates.add(cb.equal(root.get("department").get("name"), department));
-    }
-    if (isActive != null) {
-      predicates.add(cb.equal(root.get("isActive"), isActive));
-    }
   }
 
   public IndividualResponseWrapper<EmployeeResponse> getEmployeeById(long id) {
