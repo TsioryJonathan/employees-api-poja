@@ -25,9 +25,13 @@ public class EmployeeController {
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "10") int size,
       @RequestParam(required = false) String sort,
-      @RequestParam(required = false) String order) {
+      @RequestParam(required = false) String order,
+      @RequestParam(required = false) String q,
+      @RequestParam(required = false) String department,
+      @RequestParam(required = false) Boolean isActive) {
     Pageable pageable = buildPageable(page, size, sort, order);
-    ResponseWrapper<EmployeeResponse> response = employeeService.getAllEmployees(pageable);
+    ResponseWrapper<EmployeeResponse> response =
+        employeeService.getAllEmployees(pageable, q, department, isActive);
     return ResponseEntity.ok(response);
   }
 

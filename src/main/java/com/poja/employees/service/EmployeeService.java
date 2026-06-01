@@ -14,6 +14,7 @@ import com.poja.employees.repository.EmployeeRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -23,11 +24,26 @@ public class EmployeeService {
   private final DepartmentRepository departmentRepository;
   private final EmployeeMapper employeeMapper;
 
-  public ResponseWrapper<EmployeeResponse> getAllEmployees(Pageable pageable) {
-    Page<Employee> employeePage = employeeRepository.findAll(pageable);
+  public ResponseWrapper<EmployeeResponse> getAllEmployees(
+      Pageable pageable, String q, String department, Boolean isActive) {
+    Specification<Employee> spec = Specification.where(null);
 
+    if (q != null && !q.isEmpty()) {
+      spec =
+          spec.and(
+              (root, query, cb) ->
+                  cb.like(cb.lower(root.get("name")), "%" + q.toLowerCase() + "%"));
+    }
+    if (department != null && !department.isEmpty()) {
+      spec =
+          spec.and((root, query, cb) -> cb.equal(root.get("department").get("name"), department));
+    }
+    if (isActive != null) {
+      spec = spec.and((root, query, cb) -> cb.equal(root.get("isActive"), isActive));
+    }
+
+    Page<Employee> employeePage = employeeRepository.findAll(spec, pageable);
     Page<EmployeeResponse> responsePage = employeePage.map(employeeMapper::toDTO);
-
     return new ResponseWrapper<>(responsePage.getContent(), employeePage.getTotalElements());
   }
 

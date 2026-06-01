@@ -95,6 +95,21 @@ paths:
             type: string
             enum: [ASC, DESC]
             default: ASC
+        - name: q
+          in: query
+          schema:
+            type: string
+          description: Search query for name
+        - name: department
+          in: query
+          schema:
+            type: string
+          description: Filter by department name
+        - name: isActive
+          in: query
+          schema:
+            type: boolean
+          description: Filter by active status
       responses:
         "200":
           description: Paginated list of employees
@@ -259,6 +274,21 @@ paths:
             type: integer
             format: int64
           description: Filter interns by manager ID
+        - name: q
+          in: query
+          schema:
+            type: string
+          description: Search query for name
+        - name: department
+          in: query
+          schema:
+            type: string
+          description: Filter by department name
+        - name: isRemunerated
+          in: query
+          schema:
+            type: boolean
+          description: Filter by remuneration status
       responses:
         "200":
           description: Paginated list of interns

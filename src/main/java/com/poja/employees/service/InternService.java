@@ -15,6 +15,7 @@ import com.poja.employees.repository.InternRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -26,11 +27,28 @@ public class InternService {
   private final EmployeeRepository employeeRepository;
   private final InternMapper internMapper;
 
-  public ResponseWrapper<InternResponse> getAllInterns(Pageable pageable, Long managerId) {
-    Page<Intern> internPage =
-        (managerId != null)
-            ? internRepository.findByManagerId(managerId, pageable)
-            : internRepository.findAll(pageable);
+  public ResponseWrapper<InternResponse> getAllInterns(
+      Pageable pageable, Long managerId, String q, String department, Boolean isRemunerated) {
+    Specification<Intern> spec = Specification.where(null);
+
+    if (managerId != null) {
+      spec = spec.and((root, query, cb) -> cb.equal(root.get("manager").get("id"), managerId));
+    }
+    if (q != null && !q.isEmpty()) {
+      spec =
+          spec.and(
+              (root, query, cb) ->
+                  cb.like(cb.lower(root.get("name")), "%" + q.toLowerCase() + "%"));
+    }
+    if (department != null && !department.isEmpty()) {
+      spec =
+          spec.and((root, query, cb) -> cb.equal(root.get("department").get("name"), department));
+    }
+    if (isRemunerated != null) {
+      spec = spec.and((root, query, cb) -> cb.equal(root.get("isRemunerated"), isRemunerated));
+    }
+
+    Page<Intern> internPage = internRepository.findAll(spec, pageable);
     Page<InternResponse> responsePage = internPage.map(internMapper::toDTO);
     return new ResponseWrapper<>(responsePage.getContent(), internPage.getTotalElements());
   }
