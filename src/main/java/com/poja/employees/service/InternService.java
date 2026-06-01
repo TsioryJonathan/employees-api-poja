@@ -12,10 +12,17 @@ import com.poja.employees.model.exception.NotFoundException;
 import com.poja.employees.repository.DepartmentRepository;
 import com.poja.employees.repository.EmployeeRepository;
 import com.poja.employees.repository.InternRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import java.util.ArrayList;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -26,31 +33,69 @@ public class InternService {
   private final DepartmentRepository departmentRepository;
   private final EmployeeRepository employeeRepository;
   private final InternMapper internMapper;
+  private final EntityManager entityManager;
 
   public ResponseWrapper<InternResponse> getAllInterns(
       Pageable pageable, Long managerId, String q, String department, Boolean isRemunerated) {
-    Specification<Intern> spec = Specification.where(null);
+    CriteriaBuilder cb = entityManager.getCriteriaBuilder();
 
-    if (managerId != null) {
-      spec = spec.and((root, query, cb) -> cb.equal(root.get("manager").get("id"), managerId));
+    CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
+    Root<Intern> countRoot = countQuery.from(Intern.class);
+    List<Predicate> countPredicates = new ArrayList<>();
+    addPredicates(cb, countRoot, countPredicates, managerId, q, department, isRemunerated);
+    countQuery.select(cb.count(countRoot));
+    if (!countPredicates.isEmpty()) {
+      countQuery.where(cb.and(countPredicates.toArray(new Predicate[0])));
     }
-    if (q != null && !q.isEmpty()) {
-      spec =
-          spec.and(
-              (root, query, cb) ->
-                  cb.like(cb.lower(root.get("name")), "%" + q.toLowerCase() + "%"));
+    long total = entityManager.createQuery(countQuery).getSingleResult();
+
+    CriteriaQuery<Intern> dataQuery = cb.createQuery(Intern.class);
+    Root<Intern> dataRoot = dataQuery.from(Intern.class);
+    List<Predicate> dataPredicates = new ArrayList<>();
+    addPredicates(cb, dataRoot, dataPredicates, managerId, q, department, isRemunerated);
+    if (!dataPredicates.isEmpty()) {
+      dataQuery.where(cb.and(dataPredicates.toArray(new Predicate[0])));
     }
-    if (department != null && !department.isEmpty()) {
-      spec =
-          spec.and((root, query, cb) -> cb.equal(root.get("department").get("name"), department));
-    }
-    if (isRemunerated != null) {
-      spec = spec.and((root, query, cb) -> cb.equal(root.get("isRemunerated"), isRemunerated));
+    if (pageable.getSort().isSorted()) {
+      pageable
+          .getSort()
+          .forEach(
+              order -> {
+                var path = dataRoot.get(order.getProperty());
+                dataQuery.orderBy(order.isAscending() ? cb.asc(path) : cb.desc(path));
+              });
     }
 
-    Page<Intern> internPage = internRepository.findAll(spec, pageable);
+    TypedQuery<Intern> query = entityManager.createQuery(dataQuery);
+    query.setFirstResult((int) pageable.getOffset());
+    query.setMaxResults(pageable.getPageSize());
+    List<Intern> interns = query.getResultList();
+
+    Page<Intern> internPage = new PageImpl<>(interns, pageable, total);
     Page<InternResponse> responsePage = internPage.map(internMapper::toDTO);
     return new ResponseWrapper<>(responsePage.getContent(), internPage.getTotalElements());
+  }
+
+  private void addPredicates(
+      CriteriaBuilder cb,
+      Root<Intern> root,
+      List<Predicate> predicates,
+      Long managerId,
+      String q,
+      String department,
+      Boolean isRemunerated) {
+    if (managerId != null) {
+      predicates.add(cb.equal(root.get("manager").get("id"), managerId));
+    }
+    if (q != null && !q.isEmpty()) {
+      predicates.add(cb.like(cb.lower(root.get("name")), "%" + q.toLowerCase() + "%"));
+    }
+    if (department != null && !department.isEmpty()) {
+      predicates.add(cb.equal(root.get("department").get("name"), department));
+    }
+    if (isRemunerated != null) {
+      predicates.add(cb.equal(root.get("isRemunerated"), isRemunerated));
+    }
   }
 
   public IndividualResponseWrapper<InternResponse> getInternById(long id) {
