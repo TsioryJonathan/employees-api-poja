@@ -18,5 +18,5 @@ public class EmployeeResponse {
   private String department;
   private Boolean isActive;
   private Double salary;
-  private List<Long> internIds = new ArrayList<>();
+  @Builder.Default private List<Long> internIds = new ArrayList<>();
 }
